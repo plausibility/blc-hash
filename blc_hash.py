@@ -7,6 +7,8 @@ import time
 import string
 import hashlib
 import argparse
+import socket
+import json
 
 ###
 thread_list = []
@@ -52,7 +54,7 @@ parser.add_argument(
     help=("The BLC server we're sending to."
           " ADDRESS[:PORT] (default: %(default)s)"),
     type=str,
-    default="bloocoin.zapto.org:3122"
+    default="bloocoin.zapto.org"
 )
 parser.add_argument(
     "--debug",
@@ -68,7 +70,41 @@ def start_string():
 
 
 def send_work(work, num, work_hash):
-    pass
+    wait_to_send.append({
+        "cmd": "check",
+        "winning_string": work + str(num),
+        "winning_hash": work_hash,
+        "addr": args.address
+    })
+    server = {
+        "addr": args.server.split(':')[0],
+        "port": 3122
+    }
+    if len(args.server.split(':')) > 1:
+        try:
+            server['port'] = int(args.server.split(':')[1])
+        except TypeError:
+            # Give me an integer you wanker!
+            pass
+    # We're looping just incase something screws up,
+    # so we don't lose all our hard work.
+    for i, w in wait_to_send:
+        # Apparently we can't reuse sockets after we
+        # s.close(), so we have to make one each loop. :(
+        s = socket.socket()
+        try:
+            s.connect((server['addr'], server['port']))
+        except IOError:
+            # NOPE NOPE NOPE NOPE NOPE BAIL
+            continue
+        s.send(json.dumps(w))
+        ret = s.recv(1024)
+        if ret.strip() == "True":  # Seriously wtf max?
+            # Success, do a little dance, I dunno.
+            pass
+        # Sent so we'll just remove it from the list.
+        wait_to_send.pop(i)
+        s.close()
 
 q = Queue.Queue()
 
