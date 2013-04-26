@@ -70,12 +70,16 @@ def start_string():
 
 
 def send_work(work, num, work_hash):
-    wait_to_send.append({
+    data = {
         "cmd": "check",
         "winning_string": work + str(num),
         "winning_hash": work_hash,
         "addr": args.address
-    })
+    }
+    wait_to_send.append(data)
+    if args.debug:
+        sys.stdout.write("send_work(): " + str(data) + "\n")
+        sys.stdout.flush()
     server = {
         "addr": args.server.split(':')[0],
         "port": 3122
@@ -83,25 +87,42 @@ def send_work(work, num, work_hash):
     if len(args.server.split(':')) > 1:
         try:
             server['port'] = int(args.server.split(':')[1])
-        except TypeError:
+        except TypeError as e:
             # Give me an integer you wanker!
-            pass
+            if args.debug:
+                sys.stdout.write(e + "\n")
+                sys.stdout.flush()
+    if args.debug:
+        sys.stdout.write("about to enumerate, brotha; {0}:{1}\n".format(
+                server['addr'], server['port']
+            )
+        )
+        sys.stdout.flush()
     # We're looping just incase something screws up,
     # so we don't lose all our hard work.
     for i, w in enumerate(wait_to_send):
+        if args.debug:
+            sys.stdout.write(str(i) + str(w) + "\n")
+            sys.stdout.flush()
         # Apparently we can't reuse sockets after we
         # s.close(), so we have to make one each loop. :(
         s = socket.socket()
         try:
             s.connect((server['addr'], server['port']))
-        except IOError:
+        except IOError as e:
             # NOPE NOPE NOPE NOPE NOPE BAIL
+            if args.debug:
+                sys.stdout.write(e)
+                sys.stdout.flush()
             continue
         s.send(json.dumps(w))
         ret = s.recv(1024)
         if ret.strip() == "True":  # Seriously wtf max?
             # Success, do a little dance, I dunno.
             pass
+        if args.debug:
+            sys.stdout.write("got back: " + ret + "\n")
+            sys.stdout.flush()
         # Sent so we'll just remove it from the list.
         wait_to_send.pop(i)
         s.close()
