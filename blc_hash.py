@@ -88,7 +88,7 @@ def send_work(work, num, work_hash):
             pass
     # We're looping just incase something screws up,
     # so we don't lose all our hard work.
-    for i, w in wait_to_send:
+    for i, w in enumerate(wait_to_send):
         # Apparently we can't reuse sockets after we
         # s.close(), so we have to make one each loop. :(
         s = socket.socket()
