@@ -9,10 +9,10 @@ It's pretty simple, just creates a random starting point which is a five long st
 
 The usage is as such:
 ```
-usage: blc_hash.py [-h] [-t THREADS] [-q QUEUE] [-u UPPER_BOUND] [--debug]
-                   [-d DIFFICULTY]
+usage: blc_hash.py [-h] [-t THREADS] [-q QUEUE] [-u UPPER_BOUND]
+                   [-d DIFFICULTY] [-a ADDRESS] [--server SERVER] [--debug]
 
-Mine your way to riches and glory (or something..) with BlooCoins.
+Mine your way to riches and glory with BlooCoins. (Maybe)
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -23,9 +23,14 @@ optional arguments:
   -u UPPER_BOUND, --upper-bound UPPER_BOUND
                         The upper bound at which we abandon the job (default:
                         1500000.0)
-  --debug               Spam the terminal with debugging text.
   -d DIFFICULTY, --difficulty DIFFICULTY
                         The difficulty as reported by the server
+  -a ADDRESS, --address ADDRESS
+                        An address to send valid hashes to at a BLC server
+  --server SERVER       The BLC server we're sending to. ADDRESS[:PORT]
+                        (default: bloocoin.zapto.org)
+  --debug               Spam the terminal with debugging text.
 ```
 
-If it gets a hit, it'll create a file which ends in `.blc` so you can filter them and stuff.
+If it gets a hit, it'll create a file which ends in `.blc` so you can filter them and stuff.  
+If you've given an address via the `-a` flag, it'll try and send working hashes to the given server.
